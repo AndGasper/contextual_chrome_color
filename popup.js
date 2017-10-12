@@ -2,6 +2,19 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+
+
+
+function pickColor(event) {
+  let x = event.layerX;
+  let y = event.layerY;
+  let pixel = ctx.getImageData(x, y, 1, 1); 
+  const data = pixel.data;
+  const rgba = `rgba${datta[0]}, ${data[1]}, ${data[2]}, ${data[3]/255})`;
+  color.style.background = rgba;
+  color.textContent = rgba; 
+}
+
 /**
  * Get the current URL.
  *
@@ -14,7 +27,7 @@ function getCurrentTabUrl(callback) {
   var queryInfo = {
     active: true,
     currentWindow: true
-  };
+  };  
 
   chrome.tabs.query(queryInfo, (tabs) => {
     // chrome.tabs.query invokes the callback with a list of tabs that match the
@@ -23,6 +36,7 @@ function getCurrentTabUrl(callback) {
     // A window can only have one active tab at a time, so the array consists of
     // exactly one tab.
     var tab = tabs[0];
+    console.log("tabs", tabs); 
 
     // A tab is a plain object that provides information about the tab.
     // See https://developer.chrome.com/extensions/tabs#type-Tab
@@ -104,6 +118,15 @@ function saveBackgroundColor(url, color) {
 // chrome.storage.local allows the extension data to be synced across multiple
 // user devices.
 document.addEventListener('DOMContentLoaded', () => {
+  const image = new Image();
+  image.src = './img_colormap.gif';
+  debugger;
+  const canvas = document.getElementById('colorPickerCanvas'); 
+  const ctx = canvas.getContext('2d'); 
+  image.onload = function() {
+    ctx.drawImage(image, 0, 0); 
+    image.style.display = 'none';
+  }
   getCurrentTabUrl((url) => {
     var dropdown = document.getElementById('dropdown');
 
@@ -122,5 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
       changeBackgroundColor(dropdown.value);
       saveBackgroundColor(url, dropdown.value);
     });
+    canvas.addEventListener('mousemove', pickColor) ;
   });
 });
+
+
+

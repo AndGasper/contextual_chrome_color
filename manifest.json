@@ -3,13 +3,22 @@
     "name": "URL based themeing",
     "description": "Use color to help you distinguish between your dev, staging, and production environments",
     "version": "1.0",
-    
-
-    "browser_action": {
-
-    },
     "permissions": [
         "activeTab",
         "storage"
+    ],
+    "browser_action" : {
+        "default_popup": "popup.html"
+    },
+    "storage": {
+        "managed_schema": "schema.json" 
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": ["navbar_theme.js"]
+        }
     ]
 }
