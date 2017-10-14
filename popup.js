@@ -8,11 +8,13 @@
 function pickColor(event) {
   let x = event.layerX;
   let y = event.layerY;
+  const canvas = document.getElementById('colorPickerCanvas'); // Grab the canvas
+  const ctx = canvas.getContext('2d'); // Grab the canvas context 
   let pixel = ctx.getImageData(x, y, 1, 1); 
+  console.log(`pixel.data: ${pixel.data}`);
   const data = pixel.data;
-  const rgba = `rgba${datta[0]}, ${data[1]}, ${data[2]}, ${data[3]/255})`;
-  color.style.background = rgba;
-  color.textContent = rgba; 
+  const rgba = `rgba(${data[0]}, ${data[1]}, ${data[2]}, ${data[3]/255})`;
+  changeBackgroundColor(rgba); 
 }
 
 /**
@@ -118,36 +120,44 @@ function saveBackgroundColor(url, color) {
 // chrome.storage.local allows the extension data to be synced across multiple
 // user devices.
 document.addEventListener('DOMContentLoaded', () => {
+
   const image = new Image();
   image.src = './img_colormap.gif';
-  debugger;
-  const canvas = document.getElementById('colorPickerCanvas'); 
-  const ctx = canvas.getContext('2d'); 
+  
+
+  // Shame on me for having to get the context twice. It's obviously an issue with
+  // scope/saving the information to a variable
+
+  const canvas = document.getElementById('colorPickerCanvas'); // Grab the canvas
+  const canvasContext = canvas.getContext('2d'); // Grab the canvas context 
+  
+  canvas.addEventListener('click', (event) => {
+    pickColor(event); // Pass the event and the canvas context to the color picker
+  });
   image.onload = function() {
-    ctx.drawImage(image, 0, 0); 
+    canvasContext.drawImage(image, 0, 0); 
     image.style.display = 'none';
   }
-  getCurrentTabUrl((url) => {
-    var dropdown = document.getElementById('dropdown');
-
-    // Load the saved background color for this page and modify the dropdown
-    // value, if needed.
-    getSavedBackgroundColor(url, (savedColor) => {
-      if (savedColor) {
-        changeBackgroundColor(savedColor);
-        dropdown.value = savedColor;
-      }
-    });
-
-    // Ensure the background color is changed and saved when the dropdown
-    // selection changes.
-    dropdown.addEventListener('change', () => {
-      changeBackgroundColor(dropdown.value);
-      saveBackgroundColor(url, dropdown.value);
-    });
-    canvas.addEventListener('mousemove', pickColor) ;
-  });
 });
 
 
 
+// Don't know why I added this...
+function DiagnosticInfo(thingsToDebug) {
+  this.argumentsPassed = arguments; // type: array 
+  this.information = {}; 
+  this.report = function() {
+    let i = 0;
+    while(this.argumentsPassed[i]) {
+      this.information[i] = {
+        "type": typeof this.argumentsPassed[i],
+        "contents": this.argumentsPassed[i]
+      };
+      i++; 
+    }
+    return this.information; 
+  }
+  this.printReport = function() {
+    console.log(`this.information: ${this.information}`);
+  }
+}
